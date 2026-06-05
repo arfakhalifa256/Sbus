@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalkulator BBM & Service</title>
+
+<link rel="stylesheet" href="css/bbm.css">
+<link rel="stylesheet" href="css/sidebar.css">
+  <style>
+  *{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial;
+}
+
+body{
+  background:#f4f7fb;
+}
+
+/* ===== SIDEBAR ===== */
+/* SIDEBAR */
+.sidebar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:220px;
+  height:100%;
+  background:#1e293b;
+  color:#fff;
+  padding:20px 12px;
+  display:flex;
+  flex-direction:column;
+  z-index:1000;
+}
+
+.sidebar h3{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+.sidebar a{
+  color:#cbd5f5;
+  text-decoration:none;
+  padding:10px 12px;
+  border-radius:10px;
+  margin-bottom:6px;
+  display:block;
+  font-size:14px;
+}
+
+.sidebar a:hover{
+  background:#334155;
+  color:#fff;
+}
+
+.sidebar a.active{
+  background:#1e90ff;
+  color:#fff;
+}
+
+/* CONTENT GESER */
+body{
+  margin-left:230px;
+}
+
+/* TOGGLE BUTTON */
+.menu-toggle{
+  display:none;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+  .sidebar{
+    left:-100%;
+    transition:.3s;
+  }
+
+  .sidebar.show{
+    left:0;
+  }
+
+  body{
+    margin-left:0;
+  }
+
+  .menu-toggle{
+    display:block;
+    position:fixed;
+    top:10px;
+    left:10px;
+    background:#1e90ff;
+    color:#fff;
+    border:none;
+    padding:8px 10px;
+    border-radius:8px;
+    z-index:1100;
+  }
+}
+
+/* ===== BUTTON ===== */
+.toggle-btn{
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 1000;
+  background: #1e90ff;
+  color: white;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 18px;
+}
+
+/* ===== CONTENT ===== */
+.main{
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.title{
+  margin-top: 50px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 20px;
+}
+
+/* ===== CARD ===== */
+.card{
+  background:#fff;
+  padding:16px;
+  border-radius:16px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
+
+.card label{
+  display:block;
+  margin-top:10px;
+  font-size:14px;
+}
+
+.card input{
+  width:100%;
+  padding:10px;
+  margin-top:5px;
+  border:1px solid #ddd;
+  border-radius:10px;
+}
+
+.card button{
+  margin-top:15px;
+  width:100%;
+  padding:12px;
+  border:none;
+  background:#1e90ff;
+  color:#fff;
+  border-radius:10px;
+  font-size:16px;
+}
+
+/* ===== HASIL ===== */
+.hasil{
+  margin-top:15px;
+  background:#fff;
+  padding:15px;
+  border-radius:12px;
+}
+  .overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.3);
+  z-index:998;
+  display:none;
+}
+
+.overlay.show{
+  display:block;
+}
+  </style>
+</head>
+
+<body>
+
+<!-- ===== TOGGLE BUTTON ===== -->
+<button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+
+<!-- ===== SIDEBAR ===== -->
+<div class="sidebar" id="sidebar">
+  <h3>School Bus</h3>
+
+  <a href="dashboard.html">🏠 Dashboard</a>
+  <a href="input.html">📝 Input Perjalanan </a>
+  <a href="driver.html">🧑‍✈️ Driver</a>
+  <a href="cari.html">✏️ Edit</a>
+  <a href="lapor.html">📊 Laporan</a>
+  <a href="backup.html">💾 Backup</a>
+  <a href="config.html">⚙️ Config</a>
+  <a href="bbm.html" class="active">⛽ BBM</a>
+  <a href="user.html">👤 User</a>
+
+  <div id="overlay" class="overlay"></div>
+  
+  <hr>
+  <a href="#" onclick="logout()">🚪 Logout</a>
+</div>
+
+<!-- ===== CONTENT ===== -->
+<div class="main">
+
+  <h2 class="title">Kalkulator Biaya BBM & Service</h2>
+
+  <div class="card">
+    <label>Jarak Tempuh per Hari (km)</label>
+    <input type="number" id="jarakHari">
+
+    <label>Harga BBM per Liter (Rp)</label>
+    <input type="number" id="hargaBBM">
+
+    <label>Perbandingan BBM (km/l)</label>
+    <input type="number" id="perbandingan">
+
+    <label>Biaya Service per 10.000 km (Rp)</label>
+    <input type="number" id="service">
+
+    <button onclick="hitung()">Hitung</button>
+  </div>
+
+  <div class="hasil" id="hasil"></div>
+
+</div>
+
+<script src="js/bbm.js"></script>
+
+<!-- ===== SIDEBAR SCRIPT ===== -->
+<script>
+function toggleSidebar(){
+  document.getElementById("sidebar").classList.toggle("show");
+}
+
+function logout(){
+  localStorage.clear();
+  window.location.href = "index.html";
+}
+
+// auto close sidebar saat klik menu
+document.querySelectorAll(".sidebar a").forEach(a=>{
+  a.addEventListener("click", ()=>{
+    document.getElementById("sidebar").classList.remove("show");
+  });
+});
+  document.addEventListener("click", function(e){
+  const sidebar = document.getElementById("sidebar");
+  const btn = document.querySelector(".toggle-btn");
+
+  // kalau klik di dalam sidebar atau tombol → abaikan
+  if(sidebar.contains(e.target) || btn.contains(e.target)){
+    return;
+  }
+
+  // kalau sidebar lagi terbuka → tutup
+  sidebar.classList.remove("show");
+});
+</script>
+
+</body>
+</html>
