@@ -312,8 +312,26 @@ function renderTable() {
   document.getElementById("totalUang").innerText = rupiah(grandTotal);
 }
 
-// ================= EXPORT WA & PDF sama kayak sebelumnya =================
+
+// 🔥 FUNGSI BARU: Ambil nama bulan sebelumnya
+function getBulanSebelumnya() {
+  const bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  const now = new Date();
+  let bulanIdx = now.getMonth() - 1; // -1 = bulan lalu
+  let tahun = now.getFullYear();
+
+  if (bulanIdx < 0) {
+    bulanIdx = 11; // Desember
+    tahun = tahun - 1;
+  }
+
+  return bulan[bulanIdx] + " + tahun;
+}
+
+// ================= EXPORT WA =================
 window.exportWA = function () {
+  const bulanLalu = getBulanSebelumnya();
+
   let group = {};
   let grandTotal = 0;
 
@@ -323,29 +341,39 @@ window.exportWA = function () {
     group[keyDriver].push(d);
   });
 
-  let text = "📊 *LAPORAN PERJALAN*\n\n";
+  let text = `📊 *LAPORAN PERJALAN*\n*Bulan: ${bulanLalu}*\n\n`;
+
   Object.keys(group).forEach(driver => {
     text += `🚐 *Driver: ${driver}*\n`;
     let total = 0;
+
     group[driver].forEach((d, i) => {
       let biaya = Number(d.total || 0);
       total += biaya;
       grandTotal += biaya;
       text += `\n${i + 1}. ${d.namaSiswa || d.nama} - ${rupiah(biaya)}`;
     });
+
     const potongan = total * 0.1;
     const dibayar = total - potongan;
-    text += `\n\nSubtotal: ${rupiah(total)}\nPotongan 10%: ${rupiah(potongan)}\nDibayarkan: ${rupiah(dibayar)}\n\n----------------------\n\n`;
+
+    text += `\n\nSubtotal: ${rupiah(total)}`;
+    text += `\nPotongan 10%: ${rupiah(potongan)}`;
+    text += `\nDibayarkan: ${rupiah(dibayar)}\n\n----------------------\n\n`;
   });
+
   text += `🔥 GRAND TOTAL: ${rupiah(grandTotal)}`;
   window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
 };
 
+// ================= EXPORT PDF =================
 window.exportPDF = function () {
+  const bulanLalu = getBulanSebelumnya();
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
+
   let y = 10;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(14);
@@ -353,8 +381,11 @@ window.exportPDF = function () {
   y += 8;
   doc.setFontSize(12);
   doc.text("KHALIFA IMS", 105, y, { align: "center" });
-  y += 8;
+  y += 6;
   doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  doc.text(`Periode: ${bulanLalu}`, 105, y, { align: "center" }); // 🔥 TAMBAH BULAN
+  y += 6;
   doc.setFontSize(10);
   doc.text(`Tanggal cetak: ${new Date().toLocaleDateString("id-ID")}`, 105, y, { align: "center" });
   y += 10;
@@ -405,7 +436,7 @@ window.exportPDF = function () {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.text("GRAND TOTAL: " + rupiah(grandTotal), 14, y);
-  doc.save(`Laporan_${new Date().toISOString().slice(0,10)}.pdf`);
+  doc.save(`Laporan_${bulanLalu.replace(" ","_")}.pdf`); // 🔥 nama file pake bulan lalu
 };
 
 window.addEventListener("DOMContentLoaded", loadData);
