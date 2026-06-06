@@ -154,39 +154,47 @@ function rupiah(n) {
   return "Rp " + Number(n || 0).toLocaleString("id-ID");
 }
 
+// 🔥 TAMBAHIN INI BIAR SIDEBAR JALAN
 window.toggleMenu = function () {
   document.querySelector(".sidebar").classList.toggle("show");
   document.getElementById("overlay").classList.toggle("show");
 };
+
 window.closeSidebar = function () {
   document.querySelector(".sidebar").classList.remove("show");
   document.getElementById("overlay").classList.remove("show");
 };
 
-// ================= LOAD DATA =================
-async function loadData() {
-  // 🔥 JANGAN orderBy createdAt, biar data lama kebaca semua
-  const snap = await getDocs(collection(db, "perjalanan"));
+// 🔥 FUNGSI BULAN SEBELUMNYA - TYPO UDAH DIBENERIN
+function getBulanSebelumnya() {
+  const bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  const now = new Date();
+  let bulanIdx = now.getMonth() - 1;
+  let tahun = now.getFullYear();
 
+  if (bulanIdx < 0) {
+    bulanIdx = 11;
+    tahun = tahun - 1;
+  }
+
+  return bulan[bulanIdx] + " " + tahun; dihapus
+}
+
+async function loadData() {
+  const snap = await getDocs(collection(db, "perjalanan"));
   allData = [];
   driverList = [];
 
   snap.forEach(d => {
     const x = d.data();
-
-    // Filter driver login
     if (role!== "admin") {
       const cocokId = x.driverId && driverIdLogin && String(x.driverId) === String(driverIdLogin);
       const cocokNama = (x.namaDriver || x.owner || x.username) === usernameLogin;
       if (!cocokId &&!cocokNama) return;
     }
-
     allData.push(x);
-
-    // Ambil list driver buat dropdown
     const idDriver = x.driverId || x.namaDriver || x.owner || x.username;
     const namaDriver = x.namaDriver || x.owner || x.username || idDriver;
-
     if (idDriver && namaDriver &&!driverList.some(v => v.id === idDriver)) {
       driverList.push({ id: idDriver, nama: namaDriver });
     }
@@ -196,22 +204,18 @@ async function loadData() {
   applyFilter();
 }
 
-// ================= DROPDOWN DRIVER =================
 function renderDriver() {
   const el = document.getElementById("filterDriver");
   el.innerHTML = `<option value="">Semua Driver</option>`;
-
   driverList.forEach(d => {
     el.innerHTML += `<option value="${d.id}">${d.nama}</option>`;
   });
-
   if (role!== "admin") {
     el.value = driverIdLogin || usernameLogin || "";
     el.disabled = true;
   }
 }
 
-// ================= FILTER =================
 window.applyFilter = function () {
   const driver = document.getElementById("filterDriver").value;
   const awal = document.getElementById("tglAwal").value;
@@ -220,29 +224,21 @@ window.applyFilter = function () {
   const sort = document.getElementById("sortData").value;
 
   filteredData = allData.filter(d => {
-    // Filter driver - pake String() biar tipe data sama
     if (driver) {
       const idDriver = String(d.driverId || d.namaDriver || d.owner || d.username || "");
       if (idDriver!== String(driver)) return false;
     }
-
-    // Filter tanggal - support tanggal/createdAt/tglInput
     const tglStr = d.tanggal || d.createdAt || d.tglInput || "";
     const tglData = new Date(tglStr);
     const tglAwal = awal? new Date(awal) : null;
     const tglAkhir = akhir? new Date(akhir + " 23:59:59") : null;
-
     if (tglAwal &&!isNaN(tglData) && tglData < tglAwal) return false;
     if (tglAkhir &&!isNaN(tglData) && tglData > tglAkhir) return false;
-
-    // Filter search siswa - realtime
     const namaSiswa = String(d.namaSiswa || d.nama || d.siswa || "").toLowerCase();
     if (search &&!namaSiswa.includes(search)) return false;
-
     return true;
   });
 
-  // Sort
   if (sort === "new") filteredData.sort((a, b) => new Date(b.tanggal || b.createdAt || b.tglInput) - new Date(a.tanggal || a.createdAt || a.tglInput));
   if (sort === "old") filteredData.sort((a, b) => new Date(a.tanggal || a.createdAt || a.tglInput) - new Date(b.tanggal || b.createdAt || b.tglInput));
   if (sort === "besar") filteredData.sort((a, b) => Number(b.total || 0) - Number(a.total || 0));
@@ -251,14 +247,11 @@ window.applyFilter = function () {
   renderTable();
 };
 
-// Event realtime buat search siswa
 document.getElementById("searchSiswa").addEventListener("input", applyFilter);
 
-// ================= RENDER TABEL =================
 function renderTable() {
   const body = document.getElementById("laporanBody");
   body.innerHTML = "";
-
   let group = {};
   let grandTotal = 0;
 
@@ -274,17 +267,10 @@ function renderTable() {
 
   Object.keys(group).forEach(driver => {
     let total = 0;
-
-    body.innerHTML += `
-      <tr>
-        <td colspan="7" class="header-driver">🚐 ${driver}</td>
-      </tr>
-    `;
-
+    body.innerHTML += `<tr><td colspan="7" class="header-driver">🚐 ${driver}</td></tr>`;
     group[driver].forEach((d, i) => {
       total += Number(d.total || 0);
       grandTotal += Number(d.total || 0);
-
       body.innerHTML += `
         <tr>
           <td>${i + 1}</td>
@@ -297,10 +283,8 @@ function renderTable() {
         </tr>
       `;
     });
-
     const potongan = total * 0.1;
     const dibayar = total - potongan;
-
     body.innerHTML += `
       <tr class="row-total"><td colspan="6">Total</td><td>${rupiah(total)}</td></tr>
       <tr class="row-potongan"><td colspan="6">Potongan 10%</td><td>${rupiah(potongan)}</td></tr>
@@ -312,68 +296,39 @@ function renderTable() {
   document.getElementById("totalUang").innerText = rupiah(grandTotal);
 }
 
-
-// 🔥 FUNGSI BARU: Ambil nama bulan sebelumnya
-function getBulanSebelumnya() {
-  const bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-  const now = new Date();
-  let bulanIdx = now.getMonth() - 1; // -1 = bulan lalu
-  let tahun = now.getFullYear();
-
-  if (bulanIdx < 0) {
-    bulanIdx = 11; // Desember
-    tahun = tahun - 1;
-  }
-
-  return bulan[bulanIdx] + " + tahun;
-}
-
-// ================= EXPORT WA =================
 window.exportWA = function () {
   const bulanLalu = getBulanSebelumnya();
-
   let group = {};
   let grandTotal = 0;
-
   filteredData.forEach(d => {
     const keyDriver = d.namaDriver || d.owner || d.username || d.driverId || "Driver";
     if (!group[keyDriver]) group[keyDriver] = [];
     group[keyDriver].push(d);
   });
-
   let text = `📊 *LAPORAN PERJALAN*\n*Bulan: ${bulanLalu}*\n\n`;
-
   Object.keys(group).forEach(driver => {
     text += `🚐 *Driver: ${driver}*\n`;
     let total = 0;
-
     group[driver].forEach((d, i) => {
       let biaya = Number(d.total || 0);
       total += biaya;
       grandTotal += biaya;
       text += `\n${i + 1}. ${d.namaSiswa || d.nama} - ${rupiah(biaya)}`;
     });
-
     const potongan = total * 0.1;
     const dibayar = total - potongan;
-
-    text += `\n\nSubtotal: ${rupiah(total)}`;
-    text += `\nPotongan 10%: ${rupiah(potongan)}`;
-    text += `\nDibayarkan: ${rupiah(dibayar)}\n\n----------------------\n\n`;
+    text += `\n\nSubtotal: ${rupiah(total)}\nPotongan 10%: ${rupiah(potongan)}\n\nDibayarkan: ${rupiah(dibayar)}\n\n----------------------\n\n`;
   });
-
-  text += `🔥 GRAND TOTAL: ${rupiah(grandTotal)}`;
-  window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
+ 
+    window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
 };
 
-// ================= EXPORT PDF =================
 window.exportPDF = function () {
   const bulanLalu = getBulanSebelumnya();
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
-
   let y = 10;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(14);
@@ -384,7 +339,7 @@ window.exportPDF = function () {
   y += 6;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(11);
-  doc.text(`Periode: ${bulanLalu}`, 105, y, { align: "center" }); // 🔥 TAMBAH BULAN
+  doc.text(`Periode: ${bulanLalu}`, 105, y, { align: "center" });
   y += 6;
   doc.setFontSize(10);
   doc.text(`Tanggal cetak: ${new Date().toLocaleDateString("id-ID")}`, 105, y, { align: "center" });
@@ -403,14 +358,12 @@ window.exportPDF = function () {
     doc.setFontSize(11);
     doc.text("Driver: " + driver, 14, y);
     y += 6;
-
     let total = 0;
     const rows = group[driver].map((d, i) => {
       total += Number(d.total || 0);
       grandTotal += Number(d.total || 0);
       return [i + 1, d.namaSiswa || d.nama || "-", d.kelas || "-", d.alamat || "-", (d.jarak || 0) + " Km", (d.trayek || "-").toUpperCase(), rupiah(d.total)];
     });
-
     doc.autoTable({
       startY: y,
       head: [["No", "Siswa", "Kelas", "Alamat", "Jarak", "Trayek", "Total"]],
@@ -420,7 +373,6 @@ window.exportPDF = function () {
       alternateRowStyles: { fillColor: [248, 250, 252] },
       margin: { left: 14, right: 14 }
     });
-
     y = doc.lastAutoTable.finalY + 6;
     const potongan = total * 0.1;
     const dibayar = total - potongan;
@@ -436,7 +388,7 @@ window.exportPDF = function () {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.text("GRAND TOTAL: " + rupiah(grandTotal), 14, y);
-  doc.save(`Laporan_${bulanLalu.replace(" ","_")}.pdf`); // 🔥 nama file pake bulan lalu
+  doc.save(`Laporan_${bulanLalu.replace(" ","_")}.pdf`);
 };
 
 window.addEventListener("DOMContentLoaded", loadData);
