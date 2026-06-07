@@ -295,32 +295,42 @@ function renderTable() {
   document.getElementById("totalData").innerText = filteredData.length;
   document.getElementById("totalUang").innerText = rupiah(grandTotal);
 }
-
 window.exportWA = function () {
   const bulanLalu = getBulanSebelumnya();
+
   let group = {};
   let grandTotal = 0;
+
   filteredData.forEach(d => {
     const keyDriver = d.namaDriver || d.owner || d.username || d.driverId || "Driver";
     if (!group[keyDriver]) group[keyDriver] = [];
     group[keyDriver].push(d);
   });
-  let text = `📊 *LAPORAN PERJALAN*\n*Bulan: ${bulanLalu}*\n\n`;
+
+  let text = `📊 LAPORAN PERJALAN\nBulan: ${bulanLalu}\n\n`;
+
   Object.keys(group).forEach(driver => {
-    text += `🚐 *Driver: ${driver}*\n`;
+    text += `🚐 ${driver}\n`;
     let total = 0;
+
     group[driver].forEach((d, i) => {
       let biaya = Number(d.total || 0);
       total += biaya;
       grandTotal += biaya;
-      text += `\n${i + 1}. ${d.namaSiswa || d.nama} - ${rupiah(biaya)}`;
+      // 🔥 tanpa bintang biar nggak bold, jadi kelihatan kecil
+      text += `${i + 1}. ${d.namaSiswa || d.nama} - ${rupiah(biaya)}\n`;
     });
+
     const potongan = total * 0.1;
     const dibayar = total - potongan;
-    text += `\n\nSubtotal: ${rupiah(total)}\nPotongan 10%: ${rupiah(potongan)}\n\nDibayarkan: ${rupiah(dibayar)}\n\n----------------------\n\n`;
+
+    text += `\nSubtotal: ${rupiah(total)}`;
+    text += `\nPotongan 10%: ${rupiah(potongan)}`;
+    text += `\nDibayar: ${rupiah(dibayar)}\n\n────────────────\n\n`;
   });
- 
-    window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
+
+  text += `GRAND TOTAL: ${rupiah(grandTotal)}`;
+  window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
 };
 
 window.exportPDF = function () {

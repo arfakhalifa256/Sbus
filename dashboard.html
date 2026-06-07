@@ -505,6 +505,14 @@ table{
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-3px); }
 }
+  .footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 40px;
+}
+
   </style>
  </head>
 <body>
@@ -554,12 +562,7 @@ table{
   </div>
 </div>
 
-  <div class="stats">
-    <div class="stat-card">
-      <div class="stat-label">Menu Aktif</div>
-      <div class="stat-value">6</div>
-      <div class="stat-sub">Fitur utama tersedia</div>
-    </div>
+  
     <div class="stat-card">
       <div class="stat-label">Status Aplikasi</div>
       <div class="stat-value">ON</div>
@@ -567,68 +570,8 @@ table{
     </div>
   </div>
 
-  <div class="section-title">Menu Utama</div>
-<div class="stat-card">
-  <div class="stat-label">Total Perjalanan</div>
-  <div class="stat-value" id="totalData">0</div>
-  <div class="stat-sub">Data bulan ini</div>
-</div>
-  <div class="grid">
-    <a href="input.html" class="menu-card">
-      <div class="menu-icon bg-primary">📝</div>
-      <div class="menu-title">Input Perjalanan</div>
-      <div class="menu-desc">
-        Tambahkan data perjalanan baru berdasarkan driver, siswa, jarak, trayek, dan total biaya.
-      </div>
-    </a>
-
-    <a href="driver.html" class="menu-card">
-      <div class="menu-icon bg-purple">🧑‍✈️</div>
-      <div class="menu-title">Manajemen Driver</div>
-      <div class="menu-desc">
-        Tambah, lihat, ubah, dan hapus data driver untuk kebutuhan perjalanan.
-      </div>
-    </a>
-
-    <a href="cari.html" class="menu-card">
-      <div class="menu-icon bg-warning">✏️</div>
-      <div class="menu-title">Edit Perjalanan</div>
-      <div class="menu-desc">
-        Cari data perjalanan, ubah data, perbarui total, atau hapus data yang tersimpan.
-      </div>
-    </a>
-
-    <a href="backup.html" class="menu-card">
-      <div class="menu-icon bg-success">💾</div>
-      <div class="menu-title">Backup & Restore</div>
-      <div class="menu-desc">
-        Backup data, hapus isi Firebase, lalu restore kembali dari file JSON saat dibutuhkan.
-      </div>
-    </a>
-
-    <a href="lapor.html" class="menu-card">
-      <div class="menu-icon bg-cyan">📊</div>
-      <div class="menu-title">Laporan Perjalanan</div>
-      <div class="menu-desc">
-        Lihat rekap data perjalanan, filter laporan, lalu export atau kirim ke WhatsApp.
-      </div>
-    </a>
-
-    <a href="config.html" class="menu-card">
-      <div class="menu-icon bg-danger">⚙️</div>
-      <div class="menu-title">Konfigurasi Harga</div>
-      <div class="menu-desc">
-        Atur harga dasar dan kenaikan harga per kilometer agar hasil perhitungan lebih akurat.
-      </div>
-    </a>
-  </div>
-
-  <div class="mini-box">
-  <h3>Data Perjalanan</h3>
-  <div id="data"></div>
-</div>
-  
-
+  <div class="footer">
+  © 2026 Arfa • Sistem Informasi Perjalanan Drver
 </div>
   
   <script type="module">

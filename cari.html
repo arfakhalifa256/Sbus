@@ -437,6 +437,11 @@ if(isLogin !== "true" || !username || !role){
   window.location.href = "index.html";
 }
   
+  // ================= LOGOUT =================
+window.logout = function(){
+  localStorage.clear();
+  window.location.href = "login.html";
+}
     const DEFAULT_HARGA_DASAR = 608000;
     const DEFAULT_KENAIKAN = 7800;
 
