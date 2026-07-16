@@ -271,8 +271,11 @@ async function loadConfigHarga(){
 }
 
 function hitungHargaDasar(jarak){
-  if(jarak <= 1) return configHarga.hargaDasar;
-  return configHarga.hargaDasar + Math.ceil((jarak-1)/0.1)*configHarga.kenaikanPerTitik;
+  if (jarak <= 1) return configHarga.hargaDasar;
+
+  const titik = Math.round(((jarak - 1) + Number.EPSILON) * 10);
+
+  return configHarga.hargaDasar + (titik * configHarga.kenaikanPerTitik);
 }
 
 function ubahTrayek(){
