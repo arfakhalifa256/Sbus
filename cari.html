@@ -561,17 +561,25 @@ window.logout = function(){
   }
 }
 
-    function renderDriverOptions(selectedId = ""){
-      editDriver.innerHTML = '<option value="">-- Pilih Driver --</option>';
+    function renderDriverOptions(selectedId = "", selectedNama = ""){
+  editDriver.innerHTML = '<option value="">-- Pilih Driver --</option>';
 
-      allDrivers.forEach(driver => {
-        const opt = document.createElement("option");
-        opt.value = driver.docId;
-        opt.textContent = `${driver.nama}${driver.idAnggota ? " (" + driver.idAnggota + ")" : ""}`;
-        if(selectedId && selectedId === driver.docId) opt.selected = true;
-        editDriver.appendChild(opt);
-      });
+  let ketemu = false;
+  allDrivers.forEach(driver => {
+    const opt = document.createElement("option");
+    opt.value = driver.docId;
+    opt.textContent = `${driver.nama}${driver.idAnggota ? " (" + driver.idAnggota + ")" : ""}`;
+    
+    // 🔥 Cocokin pake ID dulu, kalau gak ada cocokin pake NAMA
+    if(selectedId && selectedId === driver.docId){
+      opt.selected = true;
+      ketemu = true;
+    } else if(!ketemu && selectedNama && driver.nama.toLowerCase() === selectedNama.toLowerCase()){
+      opt.selected = true;
     }
+    editDriver.appendChild(opt);
+  });
+}
 
     async function loadPerjalanan(){
   try{
@@ -681,41 +689,42 @@ applyRoleUI();
     }
 
     function openEditForm(){
-      // 🔒 batasi driver tidak bisa ganti driver lain
-if(role !== "admin"){
-  editDriver.disabled = true;
+  // 🔒 batasi driver tidak bisa ganti driver lain
+  if(role !== "admin"){
+    editDriver.disabled = true;
+  } else {
+    editDriver.disabled = false;
+  }
+
+  if(!selectedData){
+    showToast("Data belum dipilih");
+    return;
+  }
+
+  closePopup();
+  listSection.classList.add("hidden");
+  editSection.classList.remove("hidden");
+
+  // 🔥 FIX: Kirim ID dan Nama. Biar data lama yg gak ada driverId tetap keisi
+  renderDriverOptions(selectedData.driverId || "", selectedData.namaDriver || "");
+
+  editTgl.value = selectedData.tanggal || "";
+  editSiswa.value = selectedData.namaSiswa || "";
+  editKelas.value = selectedData.kelas || "";
+  editAlamat.value = selectedData.alamat || "";
+  editJarak.value = selectedData.jarak || "";
+  editTrayek.value = selectedData.trayek || "pergi";
+
+  if(selectedData.trayek === "pp"){
+    editDiscPP.value = Number(selectedData.diskon || 0);
+    editDiscOneWay.value = 0;
+  }else{
+    editDiscOneWay.value = Number(selectedData.diskon || 0);
+    editDiscPP.value = 0;
+  }
+
+  recalc();
 }
-      else{
-  editDriver.disabled = false;
-}
-      if(!selectedData){
-        showToast("Data belum dipilih");
-        return;
-      }
-
-      closePopup();
-      listSection.classList.add("hidden");
-      editSection.classList.remove("hidden");
-
-      renderDriverOptions(selectedData.driverId || "");
-      editTgl.value = selectedData.tanggal || "";
-      editSiswa.value = selectedData.namaSiswa || "";
-      editKelas.value = selectedData.kelas || "";
-      editAlamat.value = selectedData.alamat || "";
-      editJarak.value = selectedData.jarak || "";
-      editTrayek.value = selectedData.trayek || "pergi";
-
-      if(selectedData.trayek === "pp"){
-        editDiscPP.value = Number(selectedData.diskon || 0);
-        editDiscOneWay.value = 0;
-      }else{
-        editDiscOneWay.value = Number(selectedData.diskon || 0);
-        editDiscPP.value = 0;
-      }
-
-      recalc();
-    }
-
     function updateTrayekView(){
       const trayek = editTrayek.value;
 
