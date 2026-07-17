@@ -427,9 +427,13 @@ function loadUserRealtime() {
     list.innerHTML = "";
 
     snapshot.forEach((docSnap) => {
-      const u = docSnap.data();
+    const u = docSnap.data();
 
-      const card = document.createElement("div");
+    if (u.role === "admin" && u.username !== "admin") {
+        return;
+    }
+
+    const card = document.createElement("div");
       card.className = "card";
 
       card.innerHTML = `
